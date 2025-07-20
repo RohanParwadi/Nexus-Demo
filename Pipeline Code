@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven3'  // Make sure this name matches the Maven tool in Jenkins Global Tool Configuration
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/RohanParwadi/Nexus-Demo.git'
+            }
+        }
+
+        stage('Compilation') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+
+        stage('Testing') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Building the code') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Deploy artifacts') {
+            steps {
+                withMaven(
+                    globalMavenSettingsConfig: 'settings.xml',
+                    jdk: 'jdk17',                                
+                    maven: 'Maven3',                            
+                    mavenSettingsConfig: '',                     
+                    traceability: true
+                ) {
+                    sh 'mvn deploy' 
+                }
+            }
+        }
+    }
+}
